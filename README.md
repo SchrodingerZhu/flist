@@ -1,4 +1,4 @@
-# Flist
+# FList
 
 **TODO: **
 1. make this impelment more "Elixir"
