@@ -1,4 +1,4 @@
-defmodule Flist.Mixfile do
+defmodule FList.Mixfile do
   use Mix.Project
 
   def project do
