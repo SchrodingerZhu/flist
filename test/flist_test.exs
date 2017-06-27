@@ -1,6 +1,6 @@
-defmodule FlistTest do
+defmodule FListTest do
   use ExUnit.Case
-  doctest Flist
+  doctest FList
 
   test "the truth" do
     assert 1 + 1 == 2
