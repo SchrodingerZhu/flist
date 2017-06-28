@@ -349,9 +349,9 @@ end
 
 defimpl Collectable, for: FList do
   def into(original) do
-    {FList.new(), fn
+    {original, fn
       list, {:cont, x} -> FList.snoc(list, x)
-      list, :done -> original |> FList.concat(list)
+      list, :done -> list
       _, :halt -> :ok
     end}
   end
