@@ -329,7 +329,7 @@ defimpl Enumerable, for: FList do
   def at(t, index) do
     {:ok, FList.getAt(t, index)}
   end
-  def member?(t, term) do
+  def member?(_t, _term) do
     {:error, __MODULE__}
   end
   def reduce(_, {:halt, acc}, _fun) do
