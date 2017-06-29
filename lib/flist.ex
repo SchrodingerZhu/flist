@@ -209,50 +209,6 @@ defmodule FList.FTree do
   end
 end
 
-
-defmodule FList.FTest do
-  #the test module, unfinished yet
-  def prop_cons(xs) do
-    xs == FList.FTree.fromList(xs) |> FList.FTree.toList()
-  end
-
-  def prop_snoc(xs) do
-    xs == xs |> List.foldl(:Empty, fn (x, acc) -> FList.FTree.snoc(acc, x) end) |> FList.FTree.toList()
-  end
-
-  def prop_concat(xs, ys) do
-    (xs ++ ys) == FList.FTree.concat(FList.FTree.fromList(xs), FList.FTree.fromList(ys)) |> FList.FTree.toList()
-  end
-
-  def prop_lookup(xs, i) do
-    if 0 <= i && i < length(xs) do
-      FList.FTree.getAt(FList.FTree.fromList(xs), i) == Enum.fetch!(xs, i)
-    else
-      :BAD_INDEX
-    end
-  end
-
-  def prop_update(xs, i, y) do
-    if 0 <= i && i < length(xs) do
-      FList.FTree.fromList(xs) |> FList.FTree.setAt(i, y) |> FList.FTree.toList == List.update_at(xs, i, fn _ -> y end) 
-    else
-      :BAD_INDEX
-    end
-  end
-
-  def prop_mtf(xs, i) do
-    if 0 <= i && i < length(xs) do
-      a = FList.FTree.fromList(xs) |> FList.FTree.moveToFront(i) |> FList.FTree.toList
-      {_, b} = List.pop_at(xs, i)
-      a == [Enum.fetch!(xs, i) | b]
-    else
-      :BAD_INDEX
-    end
-  end
-
-  
-end
-
 defmodule FList do
    #the wrapper for the fingertree, with incompleted protocols support
    defstruct tree: :Empty
