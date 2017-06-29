@@ -40,15 +40,15 @@ defmodule FListTest do
         |> List.foldl({data, l}, fn ({i, x}, {a, b}) -> {List.update_at(a, i, fn _ -> x end), FList.setAt(b, i, x)} end)
 	  assert nl == FList.toList(fl)
   end
-  test "Test moveToFront"
-	   data = initData()
-     l = FList.fromList(data)	  
-	   result = 
-        Stream.repeatedly(fn -> Enum.random(0..99999) end)
-        |> Enum.take(100)
-	      |> Enum.map(fn a -> ((l |> FList.moveToFront(a) |> FList.head()) == Enum.fetch!(data, a)) end)
-	      |> List.foldl(true, fn (x, acc) -> x && acc end)
-	   assert result
+
+  test "Test moveToFront" do
+	data = initData(1000)
+       l = FList.fromList(data)
+	{nl, fl} =
+	Stream.repeatedly(fn -> Enum.random(0..999) end)
+	|> Enum.take(100)
+	|> List.foldl({data, l}, fn (i, {a, b}) -> {mtf(a, i), FList.moveToFront(b, i)} end)
+	assert nl == FList.toList(fl)
   end
   
 end
