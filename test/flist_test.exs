@@ -46,7 +46,7 @@ defmodule FListTest do
 	   result = 
         Stream.repeatedly(fn -> Enum.random(0..99999) end)
         |> Enum.take(100)
-	      |> Enum.map(fn a -> (l |> FList.moveToFront(a) |> FList.head()) A== Enum.fetch!(data, a) end)
+	      |> Enum.map(fn a -> ((l |> FList.moveToFront(a) |> FList.head()) == Enum.fetch!(data, a)) end)
 	      |> List.foldl(true, fn (x, acc) -> x && acc end)
 	   assert result
   end
