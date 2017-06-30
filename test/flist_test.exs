@@ -1,8 +1,12 @@
 defmodule FListTest do
   use ExUnit.Case
   doctest FList
-  def initData() do
-    Stream.repeatedly(fn -> Enum.random(1..100000) end) |> Enum.take(100000)
+  defp initData(n \\ 100000) do
+    Stream.repeatedly(fn -> Enum.random(1..100000) end) |> Enum.take(n)
+  end
+  defp mtf(list, i) do
+    {a, b} = List.pop_at(list, i)
+    [a | b]
   end
   
   test "Test fromList and to List" do
@@ -41,6 +45,7 @@ defmodule FListTest do
 	  assert nl == FList.toList(fl)
   end
 
+  
   test "Test moveToFront" do
 	data = initData(1000)
        l = FList.fromList(data)
