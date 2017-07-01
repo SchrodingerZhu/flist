@@ -8,7 +8,12 @@ defmodule FList.Mixfile do
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      name: "flist",
+     licenses: ["AGPL-3.0"],
+     maintainers: ["SchrodingerZhu(朱一帆)"],
+     links: %{"SchrodingerZhu's GitHub" => "https://github.com/SchrodingerZhu"},
      source_url: "https://github.com/SchrodingerZhu/flist",
+     description: description(),
+     package: package(),
      deps: deps()]
   end
 
@@ -17,7 +22,7 @@ defmodule FList.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:logger]]
+    []
   end
 
   # Dependencies can be Hex packages:
@@ -31,5 +36,20 @@ defmodule FList.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [{:ex_doc, "~> 0.14", only: :dev, runtime: false}]
+  end
+  defp description do
+    """
+   FList a functional list implement using the efficient data structure of fingertree. Any operation in the front and the back is amortized O(1) and the operations involved randomly visiting are O(log n).
+   """
+  end
+  defp package do
+    [
+     name: :flist,
+     licenses: ["AGPL-3.0"],
+     maintainers: ["SchrodingerZhu(朱一帆)"],
+     links: %{"SchrodingerZhu's GitHub" => "https://github.com/SchrodingerZhu"},
+     source_url: "https://github.com/SchrodingerZhu/flist",
+     description: description(),
+     deps: deps()]
   end
 end
