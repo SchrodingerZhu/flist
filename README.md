@@ -6,7 +6,7 @@
 3. ~~remove the FTest module and rewrite it with a more "Elixir" way~~
 4. build the ExDoc for this implement
 5. ~~add Acknowledging and explanations to the source file~~
-6. add Access behavior.
+6. ~~add Access behavior~~.
 
 ## Installation
 
