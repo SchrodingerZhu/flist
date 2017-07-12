@@ -8,7 +8,7 @@ defmodule FList.Mixfile do
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      name: "flist",
-     licenses: ["AGPL-3.0"],
+     licenses: ["MIT"],
      maintainers: ["SchrodingerZhu(朱一帆)"],
      links: %{"SchrodingerZhu's GitHub" => "https://github.com/SchrodingerZhu"},
      source_url: "https://github.com/SchrodingerZhu/flist",
@@ -45,7 +45,7 @@ defmodule FList.Mixfile do
   defp package do
     [
      name: :flist,
-     licenses: ["AGPL-3.0"],
+     licenses: ["MIT"],
      maintainers: ["SchrodingerZhu(朱一帆)"],
      links: %{"SchrodingerZhu's GitHub" => "https://github.com/SchrodingerZhu"},
      source_url: "https://github.com/SchrodingerZhu/flist",
