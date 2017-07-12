@@ -310,6 +310,7 @@ defmodule FList.FTree do
 end
 
 defmodule FList do
+   @behaviour Access
    @moduledoc """
    FList a functional list implement using the efficient data structure of fingertree. Any operation in the front and the back is amortized O(1) and the operations involved randomly visiting are O(log n).
    We complete this work with some reference source files in Haskell from the project of [AlgoXY](https://github.com/liuxinyu95/AlgoXY/blob/algoxy/datastruct/elementary/sequence/src/FingerTree.hs), here we need to show our acknowledging.
@@ -466,6 +467,37 @@ defmodule FList do
      list.tree |> FList.FTree.toList()
    end
 
+   #for Access
+   def fetch(term, key) do
+     cond do
+       size(term) <= key -> :error
+       true -> {:ok, FList.getAt(term, key)}
+     end
+   end
+
+   def get(term, key, default) do
+     case fetch(term, key) do
+       {:ok, value} -> value
+       :error -> default
+     end
+   end
+
+   def get_and_update(term, key, fun) do
+     cond do
+     size(term) <= key -> :error
+     true -> result = term |> get(key, nil) |> fun.()
+            {result, term |> setAt(key, result)}
+     end
+   end
+
+   def pop(term, key) do
+     cond do
+       size(term) <= key ->
+        {nil, term}
+       true ->
+        extractAt(term, key) 
+     end
+   end
 end
 
 defimpl Inspect, for: FList do
