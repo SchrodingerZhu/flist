@@ -1,11 +1,12 @@
 # FList
 
-** TODO: **
+## TODO:
 1. make this impelment more "Elixir" and more functional
 2. add more protocal support for the Enumerable and Colletable
 3. ~~remove the FTest module and rewrite it with a more "Elixir" way~~
 4. build the ExDoc for this implement
 5. ~~add Acknowledging and explanations to the source file~~
+6. add Access behavior.
 
 ## Installation
 
