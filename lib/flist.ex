@@ -269,7 +269,7 @@ defmodule FList.FTree do
   @doc """
   Get a new tree with the element at the pointed position deleted.
   """
-  @spec extractAt(t, non_neg_integer) :: t
+  @spec extractAt(t, non_neg_integer) :: {any, t}
   def extractAt(t, i) do
     {l, x, r} = splitAt(t, i)
     {FList.FNode.unwrap(x), concat(l, r)}
@@ -433,7 +433,7 @@ defmodule FList do
    @doc """
    Get a new list without the element at the pointed position. 
    """
-   @spec extractAt(t, non_neg_integer) :: t
+   @spec extractAt(t, non_neg_integer) :: {any, t}
    def extractAt(list, x) do
      {ele, t} = FList.FTree.extractAt(list.tree, x)
      {ele, new(t)}
