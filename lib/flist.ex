@@ -9,7 +9,6 @@ defmodule FList.FNode do
   """
   defstruct size: 0, branches: []
   @type t :: %FList.FNode{size: non_neg_integer, branches: list}
-  
 
   @doc """
   Return the size of a list that contains some the nodes.
@@ -19,7 +18,9 @@ defmodule FList.FNode do
   def sizeL(list) do
     __sizeL(list, 0)
   end
+
   defp __sizeL([], cur), do: cur
+
   defp __sizeL([head | tail], cur) do
     __sizeL(tail, cur + head.size)
   end
@@ -64,10 +65,12 @@ defmodule FList.FNode do
   def splitNodesAt(0, [x]) do
     {[], x, []}
   end
+
   def splitNodesAt(i, [x | xs]) do
     cond do
       i < x.size ->
         {[], x, xs}
+
       true ->
         {xsp, y, ys} = splitNodesAt(i - x.size, xs)
         {[x | xsp], y, ys}
@@ -82,7 +85,10 @@ defmodule FList.FTree do
   @typedoc """
   FList.FTree.t stands for the data structure of fingertree.
   """
-  @type t :: :Empty | {:Lf, FList.FNode.t} | {:Tr, non_neg_integer, [FList.FNode.t], t, [FList.FNode.t]}
+  @type t ::
+          :Empty
+          | {:Lf, FList.FNode.t()}
+          | {:Tr, non_neg_integer, [FList.FNode.t()], t, [FList.FNode.t()]}
 
   @doc """
   Reture the size of a tree.
@@ -93,21 +99,24 @@ defmodule FList.FTree do
   def sizeT({:Lf, a}), do: a.size
   def sizeT({:Tr, s, _, _, _}), do: s
 
-  
   defp tree(f, :Empty, []) do
-    List.foldr(f, :Empty, fn(x, acc) -> __cons(acc, x) end)
+    List.foldr(f, :Empty, fn x, acc -> __cons(acc, x) end)
   end
+
   defp tree([], :Empty, r) do
-    List.foldr(r, :Empty, fn(x, acc) -> __cons(acc, x) end)
+    List.foldr(r, :Empty, fn x, acc -> __cons(acc, x) end)
   end
+
   defp tree([], m, r) do
     {f, mp} = __uncons(m)
     FList.FNode.unwraps(f) |> tree(mp, r)
   end
+
   defp tree(f, m, []) do
     {mp, r} = __unsnoc(m)
     tree(f, mp, FList.FNode.unwraps(r))
   end
+
   defp tree(f, m, r) do
     {:Tr, FList.FNode.sizeL(f) + sizeT(m) + FList.FNode.sizeL(r), f, m, r}
   end
@@ -119,10 +128,13 @@ defmodule FList.FTree do
   def cons(t, a), do: __cons(t, FList.FNode.wrap(a))
   defp __cons(:Empty, a), do: {:Lf, a}
   defp __cons({:Lf, b}, a), do: tree([a], :Empty, [b])
+
   defp __cons({:Tr, _, [b, c, d, e], m, r}, a) do
-    tree([a, b], __cons(m, FList.FNode.wraps([c,d,e])), r)
+    tree([a, b], __cons(m, FList.FNode.wraps([c, d, e])), r)
   end
+
   defp __cons({:Tr, _, f, m, r}, a), do: tree([a | f], m, r)
+
   @doc """
   Pop the front element and return a tuple.
   """
@@ -131,14 +143,18 @@ defmodule FList.FTree do
     {t, tsp} = __uncons(ts)
     {FList.FNode.unwrap(t), tsp}
   end
+
   defp __uncons({:Lf, a}), do: {a, :Empty}
   defp __uncons({:Tr, _, [a], :Empty, [b]}), do: {a, {:Lf, b}}
   defp __uncons({:Tr, _, [a], :Empty, [r | rs]}), do: {a, tree([r], :Empty, rs)}
+
   defp __uncons({:Tr, _, [a], m, r}) do
     {f, mp} = __uncons(m)
     {a, FList.FNode.unwraps(f) |> tree(mp, r)}
   end
+
   defp __uncons({:Tr, _, [a | f], m, r}), do: {a, tree(f, m, r)}
+
   @doc """
   Get the first element.
   """
@@ -147,6 +163,7 @@ defmodule FList.FTree do
     {fst, _} = uncons(t)
     fst
   end
+
   @doc """
   Get the list tree with the front element popped.
   """
@@ -163,9 +180,11 @@ defmodule FList.FTree do
   def snoc(t, a), do: __snoc(t, FList.FNode.wrap(a))
   defp __snoc(:Empty, a), do: {:Lf, a}
   defp __snoc({:Lf, a}, b), do: tree([a], :Empty, [b])
+
   defp __snoc({:Tr, _, f, m, [a, b, c, d]}, e) do
     tree(f, __snoc(m, FList.FNode.wraps([a, b, c])), [d, e])
   end
+
   defp __snoc({:Tr, _, f, m, r}, a), do: tree(f, m, r ++ [a])
 
   @doc """
@@ -176,20 +195,25 @@ defmodule FList.FTree do
     {tsp, t} = __unsnoc(ts)
     {tsp, FList.FNode.unwrap(t)}
   end
+
   defp __unsnoc({:Lf, a}), do: {:Empty, a}
   defp __unsnoc({:Tr, _, [a], :Empty, [b]}), do: {{:Lf, a}, b}
+
   defp __unsnoc({:Tr, _, [head | tail], :Empty, [a]}) do
     thelast = List.last([head | tail])
     {tree(List.delete([head | tail], thelast), :Empty, [thelast]), a}
   end
+
   defp __unsnoc({:Tr, _, f, m, [a]}) do
     {mp, r} = __unsnoc(m)
     {tree(f, mp, FList.FNode.unwraps(r)), a}
   end
+
   defp __unsnoc({:Tr, _, f, m, r}) do
     thelast = List.last(r)
     {tree(f, m, List.delete(r, thelast)), thelast}
   end
+
   @doc """
   Get the last element. 
   """
@@ -198,6 +222,7 @@ defmodule FList.FTree do
     {_, snd} = unsnoc(t)
     snd
   end
+
   @doc """
   Get the list tree with the back element popped.
   """
@@ -206,6 +231,7 @@ defmodule FList.FTree do
     {fst, _} = unsnoc(t)
     fst
   end
+
   @doc """
   Concat two list tree.
   """
@@ -215,17 +241,21 @@ defmodule FList.FTree do
   end
 
   defp merge(:Empty, ts, t2) do
-    List.foldr(ts, t2, fn (x, acc) -> __cons(acc, x) end)
+    List.foldr(ts, t2, fn x, acc -> __cons(acc, x) end)
   end
+
   defp merge(t1, ts, :Empty) do
-    List.foldl(ts, t1, fn (x, acc) -> __snoc(acc, x) end)
+    List.foldl(ts, t1, fn x, acc -> __snoc(acc, x) end)
   end
+
   defp merge({:Lf, a}, ts, t2) do
     merge(:Empty, [a | ts], t2)
   end
+
   defp merge(t1, ts, {:Lf, a}) do
     merge(t1, ts ++ [a], :Empty)
   end
+
   defp merge({:Tr, s1, f1, m1, r1}, ts, {:Tr, s2, f2, m2, r2}) do
     {:Tr, s1 + s2 + FList.FNode.sizeL(ts), f1, merge(m1, nodes(r1 ++ ts ++ f2), m2), r2}
   end
@@ -233,276 +263,330 @@ defmodule FList.FTree do
   defp nodes([a, b]), do: [FList.FNode.wraps([a, b])]
   defp nodes([a, b, c]), do: [FList.FNode.wraps([a, b, c])]
   defp nodes([a, b, c, d]), do: [FList.FNode.wraps([a, b]), FList.FNode.wraps([c, d])]
-  defp nodes([a ,b ,c | xs]), do: [FList.FNode.wraps([a, b, c]) | nodes(xs)]
+  defp nodes([a, b, c | xs]), do: [FList.FNode.wraps([a, b, c]) | nodes(xs)]
 
   @doc """
   Split the list tree at the pointed position.
   """
-  @spec splitAt(t, non_neg_integer) :: {t, any, t}
-  def splitAt({:Lf, x}, _) do
+  @spec split_at(t, non_neg_integer) :: {t, any, t}
+  def split_at({:Lf, x}, _) do
     {:Empty, x, :Empty}
   end
-  def splitAt({:Tr, _, f, m, r}, i) do
+
+  def split_at({:Tr, _, f, m, r}, i) do
     szf = FList.FNode.sizeL(f)
     szm = sizeT(m)
+
     cond do
       i < szf ->
         {xs, y, ys} = FList.FNode.splitNodesAt(i, f)
-        {List.foldr(xs, :Empty, fn(x, acc) -> __cons(acc, x) end), y, tree(ys, m, r)}
+        {List.foldr(xs, :Empty, fn x, acc -> __cons(acc, x) end), y, tree(ys, m, r)}
+
       i < szf + szm ->
-        {m1, t, m2} = splitAt(m, i - szf)
+        {m1, t, m2} = split_at(m, i - szf)
         {xs, y, ys} = FList.FNode.splitNodesAt(i - szf - sizeT(m1), FList.FNode.unwraps(t))
         {tree(f, m1, xs), y, tree(ys, m2, r)}
+
       true ->
         {xs, y, ys} = FList.FNode.splitNodesAt(i - szf - szm, r)
-        {tree(f, m, xs), y, List.foldr(ys, :Empty, fn (x, acc) -> __cons(acc, x) end)}
+        {tree(f, m, xs), y, List.foldr(ys, :Empty, fn x, acc -> __cons(acc, x) end)}
     end
   end
+
   @doc """
   Get the element from a tree at the pointed position.
   """
-  @spec getAt(t, non_neg_integer) :: any
-  def getAt(t, i) do
-    {_, x, _} = splitAt(t, i)
+  @spec get_at(t, non_neg_integer) :: any
+  def get_at(t, i) do
+    {_, x, _} = split_at(t, i)
     FList.FNode.unwrap(x)
   end
+
   @doc """
   Get a new tree with the element at the pointed position deleted.
   """
-  @spec extractAt(t, non_neg_integer) :: {any, t}
-  def extractAt(t, i) do
-    {l, x, r} = splitAt(t, i)
+  @spec extract_at(t, non_neg_integer) :: {any, t}
+  def extract_at(t, i) do
+    {l, x, r} = split_at(t, i)
     {FList.FNode.unwrap(x), concat(l, r)}
   end
+
   @doc """
   Update the element at the pointed position.
   """
-  @spec setAt(t, non_neg_integer, any) :: t
-  def setAt(t, i, x) do
-    {l, _, r} = splitAt(t, i)
+  @spec set_at(t, non_neg_integer, any) :: t
+  def set_at(t, i, x) do
+    {l, _, r} = split_at(t, i)
     concat(l, cons(r, x))
   end
+
   @doc """
   Get a new list tree with the element at the pointed position moved to the front.
   """
-  @spec moveToFront(t, non_neg_integer) :: t
-  def moveToFront(t, i) do
-    {a, tp} = extractAt(t, i)
+  @spec move_to_front(t, non_neg_integer) :: t
+  def move_to_front(t, i) do
+    {a, tp} = extract_at(t, i)
     cons(tp, a)
   end
+
   @doc """
   Generate a tree from a list
   """
-  @spec fromList(list) :: t
-  def fromList(l) do
-    List.foldr(l, :Empty, fn (x, acc) -> cons(acc, x) end)
+  @spec from_list(list) :: t
+  def from_list(l) do
+    List.foldr(l, :Empty, fn x, acc -> cons(acc, x) end)
   end
+
   @doc """
   Turn the given tree to a normal list.
   """
-  @spec toList(t) :: list
-  def toList(:Empty) do
+  @spec to_list(t) :: list
+  def to_list(:Empty) do
     []
   end
-  def toList(t) do
-    [head(t) | (tail(t) |> toList)]
+
+  def to_list(t) do
+    [head(t) | tail(t) |> to_list]
   end
 end
 
 defmodule FList do
-   @behaviour Access
-   @moduledoc """
-   FList a functional list implement using the efficient data structure of fingertree. Any operation in the front and the back is amortized O(1) and the operations involved randomly visiting are O(log n).
-   We complete this work with some reference source files in Haskell from the project of [AlgoXY](https://github.com/liuxinyu95/AlgoXY/blob/algoxy/datastruct/elementary/sequence/src/FingerTree.hs), here we need to show our acknowledging.
-   Now, FList can partly support the protocol of Enumerable and the protocol of Collectable. However, as there still remains a long way to go, the time complexity of these protocals are not assured. Therefore, if you need the assurance now, you'd better use the methods provided below. These methods will be reserved in the future though the protocols are getting better implements in the next version of this module.
-   FList can be inspected in a pretty-looking way, which is shown below:
-   ## Examples
+  @behaviour Access
+  @moduledoc """
+  FList a functional list implement using the efficient data structure of fingertree. Any operation in the front and the back is amortized O(1) and the operations involved randomly visiting are O(log n).
+  We complete this work with some reference source files in Haskell from the project of [AlgoXY](https://github.com/liuxinyu95/AlgoXY/blob/algoxy/datastruct/elementary/sequence/src/FingerTree.hs), here we need to show our acknowledging.
+  Now, FList can partly support the protocol of Enumerable and the protocol of Collectable. However, as there still remains a long way to go, the time complexity of these protocals are not assured. Therefore, if you need the assurance now, you'd better use the methods provided below. These methods will be reserved in the future though the protocols are getting better implements in the next version of this module.
+  FList can be inspected in a pretty-looking way, which is shown below:
+  ## Examples
 
-       iex> [1, 2, 3, 4] |> FList.fromList()
-       #FList<[1, 2, 3, 4]>
+      iex> [1, 2, 3, 4] |> FList.from_list()
+      #FList<[1, 2, 3, 4]>
 
-   You can run `mix test` first to check whether the implement is working well.
-   """
+  You can run `mix test` first to check whether the implement is working well.
+  """
 
-   @typedoc """
-   FList.t stands for the FList.
-   """
-   defstruct tree: :Empty
-   @type t :: %FList{tree: FList.FTree.t}
+  @typedoc """
+  FList.t stands for the FList.
+  """
+  defstruct tree: :Empty
+  @type t :: %FList{tree: FList.FTree.t()}
 
-   @doc """
-   Generate a FList from the given FTree. If the tree is not provided, a empty list will be generated. 
-   """
-   @spec new(FList.FTree.t) :: t
-   def new(t \\ :Empty), do: %FList{tree: t}
+  @doc """
+  Generate a FList from the given FTree. If the tree is not provided, a empty list will be generated. 
+  """
+  @spec new(FList.FTree.t()) :: t
+  def new(t \\ :Empty), do: %FList{tree: t}
 
-   @doc """
-   Add a new element to the front.
-   ## Examples
+  @doc """
+  Add a new element to the front.
+  ## Examples
 
-       iex> FList.new() |> FList.cons(0)
-       #FList<[0]>
+      iex> FList.new() |> FList.cons(0)
+      #FList<[0]>
 
-   """
-   @spec cons(t, any) :: t
-   def cons(list, x), do: FList.FTree.cons(list.tree, x) |> new()
+  """
+  @spec cons(t, any) :: t
+  def cons(list, x), do: FList.FTree.cons(list.tree, x) |> new()
 
-   @doc """
-   Pop the front element, and then return a tuple.
-   """
-   @spec uncons(t) :: {any, t}
+  @doc """
+  Pop the front element, and then return a tuple.
+  """
+  @spec uncons(t) :: {any, t}
 
-   def uncons(list) do
-     {x, t} = FList.FTree.uncons(list.tree)
-     {x, new(t)}
-   end
+  def uncons(list) do
+    {x, t} = FList.FTree.uncons(list.tree)
+    {x, new(t)}
+  end
 
-   @doc """
-   Get the front element.
-   """
-   @spec head(t) :: any
-   def head(list) do
-     FList.FTree.head(list.tree)
-   end
-   @doc """
-   Get a new list without the front elemeny.
-   """
-   @spec tail(t) :: t
-   def tail(list) do
-     list.tree |> FList.FTree.tail() |> new()
-   end
+  @doc """
+  Get the front element.
+  """
+  @spec head(t) :: any
+  def head(list) do
+    FList.FTree.head(list.tree)
+  end
 
-   @doc """
-   Add a new element to the back.
-   """
-   @spec snoc(t, any) :: t
-   def snoc(list, x), do: FList.FTree.snoc(list.tree, x) |> new()
+  @doc """
+  Get a new list without the front elemeny.
+  """
+  @spec tail(t) :: t
+  def tail(list) do
+    list.tree |> FList.FTree.tail() |> new()
+  end
 
-   @doc """
-   Pop the back element, and then return a tuple.
-   """
-   @spec unsnoc(t) :: {t, any}
-   def unsnoc(list) do
-     {t, x} = FList.FTree.unsnoc(list.tree)
-     {new(t), x}
-   end
+  @doc """
+  Add a new element to the back.
+  """
+  @spec snoc(t, any) :: t
+  def snoc(list, x), do: FList.FTree.snoc(list.tree, x) |> new()
 
-   @doc """
-   Get the back element.
-   """
-   @spec last(t) :: any
-   def last(list) do
-     FList.FTree.last(list.tree)
-   end
-   @doc """
-   Get a new list without the back element.
-   """
-   @spec init(t) :: t
-   def init(list) do
-     list.tree |> FList.FTree.init() |> new()
-   end
+  @doc """
+  Pop the back element, and then return a tuple.
+  """
+  @spec unsnoc(t) :: {t, any}
+  def unsnoc(list) do
+    {t, x} = FList.FTree.unsnoc(list.tree)
+    {new(t), x}
+  end
 
-   @doc """
-   Get the size of a FList.
-   """
-   @spec size(t) :: non_neg_integer
-   def size(list), do: FList.FTree.sizeT(list.tree)
+  @doc """
+  Get the back element.
+  """
+  @spec last(t) :: any
+  def last(list) do
+    FList.FTree.last(list.tree)
+  end
 
-   @doc """
-   Concat two FLists.
-   """
-   @spec concat(t, t) :: t
-   def concat(a, b) do
-     FList.FTree.concat(a.tree, b.tree) |> new()
-   end
-   @doc """
-   Split a FList at the pointed position.
-   """
-   @spec splitAt(t, non_neg_integer) :: {t, any, t}
-   def splitAt(list, x) do
-     {a, ele, b} = FList.FTree.splitAt(list.tree, x)
-     {new(a), ele, new(b)}
-   end
-   @doc """
-   Get the element at the pointed position from a FList.
-   """
-   @spec getAt(t, non_neg_integer) :: any
-   def getAt(list, x) do
-     FList.FTree.getAt(list.tree, x)
-   end
-   @doc """
-   Get a new list without the element at the pointed position. 
-   """
-   @spec extractAt(t, non_neg_integer) :: {any, t}
-   def extractAt(list, x) do
-     {ele, t} = FList.FTree.extractAt(list.tree, x)
-     {ele, new(t)}
-   end
-   @doc """
-   Update the value of the element at the pointed position.
-   """
-   @spec setAt(t, non_neg_integer, any) :: t
-   def setAt(list, x, ele) do
-     list.tree |> FList.FTree.setAt(x, ele) |> new()
-   end
-   @doc """
-   Get a new list with the element at the pointed position moved to the front.
-   """
-   @spec moveToFront(t, non_neg_integer) :: t
-   def moveToFront(list, x) do
-     list.tree |> FList.FTree.moveToFront(x) |> new()
-   end
-   @doc """
-   Generate a FList from the given normal list.
-   """
-   @spec fromList(list) :: t
-   def fromList(originalList) do
-     originalList |> FList.FTree.fromList() |> new()
-   end
-   @doc """
-   Turn a FList into a normal list.
-   """
-   @spec toList(t) :: list
-   def toList(list) do
-     list.tree |> FList.FTree.toList()
-   end
+  @doc """
+  Get a new list without the back element.
+  """
+  @spec init(t) :: t
+  def init(list) do
+    list.tree |> FList.FTree.init() |> new()
+  end
 
-   #for Access
-   def fetch(term, key) do
-     cond do
-       size(term) <= key -> :error
-       true -> {:ok, FList.getAt(term, key)}
-     end
-   end
+  @doc """
+  Get the size of a FList.
+  """
+  @spec size(t) :: non_neg_integer
+  def size(list), do: FList.FTree.sizeT(list.tree)
 
-   def get(term, key, default) do
-     case fetch(term, key) do
-       {:ok, value} -> value
-       :error -> default
-     end
-   end
+  @doc """
+  Concat two FLists.
+  """
+  @spec concat(t, t) :: t
+  def concat(a, b) do
+    FList.FTree.concat(a.tree, b.tree) |> new()
+  end
 
-   def get_and_update(term, key, fun) do
-     cond do
-     size(term) <= key -> :error
-     true -> result = term |> get(key, nil) |> fun.()
-            {result, term |> setAt(key, result)}
-     end
-   end
+  @doc """
+  Split a FList at the pointed position.
+  """
+  @spec split_at(t, non_neg_integer) :: {t, any, t}
+  def split_at(list, x) do
+    {a, ele, b} = FList.FTree.split_at(list.tree, x)
+    {new(a), FList.FNode.unwrap(ele), new(b)}
+  end
 
-   def pop(term, key) do
-     cond do
-       size(term) <= key ->
+  @doc """
+  Get the element at the pointed position from a FList.
+  """
+  @spec get_at(t, non_neg_integer) :: any
+  def get_at(list, x) do
+    FList.FTree.get_at(list.tree, x)
+  end
+
+  @doc """
+  Get a new list without the element at the pointed position. 
+  """
+  @spec extract_at(t, non_neg_integer) :: {any, t}
+  def extract_at(list, x) do
+    {ele, t} = FList.FTree.extract_at(list.tree, x)
+    {ele, new(t)}
+  end
+
+  @doc """
+  Update the value of the element at the pointed position.
+  """
+  @spec set_at(t, non_neg_integer, any) :: t
+  def set_at(list, x, ele) do
+    list.tree |> FList.FTree.set_at(x, ele) |> new()
+  end
+
+  @doc """
+  Get a new list with the element at the pointed position moved to the front.
+  """
+  @spec move_to_front(t, non_neg_integer) :: t
+  def move_to_front(list, x) do
+    list.tree |> FList.FTree.move_to_front(x) |> new()
+  end
+
+  @doc """
+  Generate an FList from the given normal list.
+  """
+  @spec from_list(list) :: t
+  def from_list(original_list) do
+    original_list |> FList.FTree.from_list() |> new()
+  end
+
+  @doc """
+  Turn an FList into a normal list.
+  """
+  @spec to_list(t) :: list
+  def to_list(list) do
+    list.tree |> FList.FTree.to_list()
+  end
+
+  @doc """
+  Return an FList slice.
+  """
+  @spec slice(t, non_neg_integer, non_neg_integer) :: t
+  def slice(list, start, nums) do
+    cond do
+      start >= FList.size(list) ->
+        FList.new()
+
+      start + nums > FList.size(list) ->
+        slice(list, start, FList.size(list) - start)
+
+      start == 0 && nums == FList.size(list) ->
+        list
+
+      start == 0 ->
+        {res, _, _} = FList.split_at(list, nums)
+        res
+
+      start + nums == FList.size(list) ->
+        {_, _, res} = FList.split_at(list, start - 1)
+        res
+
+      true ->
+        {_, _, a} = FList.split_at(list, start - 1)
+        {b, _, _} = FList.split_at(a, nums)
+        b
+    end
+  end
+
+  # for Access
+  def fetch(term, key) do
+    cond do
+      size(term) <= key -> :error
+      true -> {:ok, FList.get_at(term, key)}
+    end
+  end
+
+  def get(term, key, default) do
+    case fetch(term, key) do
+      {:ok, value} -> value
+      :error -> default
+    end
+  end
+
+  def get_and_update(term, key, fun) do
+    cond do
+      size(term) <= key ->
+        :error
+
+      true ->
+        result = term |> get(key, nil) |> fun.()
+        {result, term |> set_at(key, result)}
+    end
+  end
+
+  def pop(term, key) do
+    cond do
+      size(term) <= key ->
         {nil, term}
-       true ->
-        extractAt(term, key) 
-     end
-   end
+
+      true ->
+        extract_at(term, key)
+    end
+  end
 end
 
 defimpl Inspect, for: FList do
   def inspect(tree, _opts \\ nil) do
-    "#FList<" <> (tree |> FList.toList() |> Kernel.inspect()) <> ">"
+    "#FList<" <> (tree |> FList.to_list() |> Kernel.inspect()) <> ">"
   end
 end
 
@@ -510,33 +594,46 @@ defimpl Enumerable, for: FList do
   def count(t) do
     {:ok, FList.size(t)}
   end
+
   def at(t, index) do
-    {:ok, FList.getAt(t, index)}
+    {:ok, FList.get_at(t, index)}
   end
+
   def member?(_t, _term) do
     {:error, __MODULE__}
   end
+
   def reduce(_, {:halt, acc}, _fun) do
     {:halted, acc}
   end
+
   def reduce(list, {:suspend, acc}, fun) do
     {:suspended, acc, &reduce(list, &1, fun)}
   end
+
   def reduce(list, {:cont, acc}, fun) do
     cond do
-      list.tree == :Empty -> {:done, acc}
-      true -> {head, tail} = FList.uncons(list)
-              reduce(tail, fun.(head, acc), fun)
+      list.tree == :Empty ->
+        {:done, acc}
+
+      true ->
+        {head, tail} = FList.uncons(list)
+        reduce(tail, fun.(head, acc), fun)
     end
+  end
+
+  def slice(list) do
+    {:ok, FList.size(list), &(FList.slice(list, &1, &2) |> FList.to_list())}
   end
 end
 
 defimpl Collectable, for: FList do
   def into(original) do
-    {original, fn
-      list, {:cont, x} -> FList.snoc(list, x)
-      list, :done -> list
-      _, :halt -> :ok
-    end}
+    {original,
+     fn
+       list, {:cont, x} -> FList.snoc(list, x)
+       list, :done -> list
+       _, :halt -> :ok
+     end}
   end
 end
